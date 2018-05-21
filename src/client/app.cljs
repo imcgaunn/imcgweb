@@ -47,7 +47,7 @@
 (defn interests []
   [:div [header "interests"]
         [nav-footer pages]])
-   
+
 (defn app-routes []
   (secretary/set-config! :prefix "#")
   (defroute "/" []
@@ -60,7 +60,7 @@
 (defmethod curr-page :home []
   [home])
 (defmethod curr-page :interests []
-  [interests])                  
+  [interests])
 
 (app-routes)
 (r/render [curr-page]
