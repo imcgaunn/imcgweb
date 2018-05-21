@@ -1,9 +1,14 @@
 (ns client.app
+  (:require-macros [secretary.core :refer [defroute]])
+  (:import goog.History)
   (:require
+   [secretary.core :as secretary]
+   [goog.events :as events]
+   [goog.history.EventType :as EventType]
    [reagent.core :as r]))
 
 (def active-page (atom [:p "welcome to my website"]))
-    
+(def app-state (r/atom {}))
 (defn start []
   (println "start called"))
 
@@ -19,10 +24,6 @@
             "projects"
             "blog"])
 
-(defn main-view [content] 
-  [:div {:class "mainContent"}
-   content])
-
 (defn nav-footer [footerpages]
   [:footer
    (for [p footerpages]
@@ -30,11 +31,37 @@
       [:li
        [:a {:href (str "/" p ".html")} p]])])
 
-(defn app-container []
-  [:div
-   [header "ian's website"]
-   [main-view @active-page]
+(defn hook-browser-navigation! []
+  (doto (History.)
+    (events/listen
+     EventType/NAVIGATE
+     (fn [event]
+       (secretary/dispatch! (.-token event))))
+    (.setEnabled true)))
+
+(defn home []
+  [:div {:class "mainContent"}
+   [header "home page"]
    [nav-footer pages]])
-    
-(r/render [app-container]
+
+(defn interests []
+  [:div [header "interests"]
+        [nav-footer pages]])
+   
+(defn app-routes []
+  (secretary/set-config! :prefix "#")
+  (defroute "/" []
+    (swap! app-state assoc :page :home))
+  (defroute "/interests" []
+    (swap! app-state assoc :page :interests))
+  (hook-browser-navigation!))
+
+(defmulti curr-page #(@app-state :page))
+(defmethod curr-page :home []
+  [home])
+(defmethod curr-page :interests []
+  [interests])                  
+
+(app-routes)
+(r/render [curr-page]
   (js/document.getElementById "app"))
