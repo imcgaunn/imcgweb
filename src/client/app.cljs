@@ -2,6 +2,7 @@
   (:require-macros [secretary.core :refer [defroute]])
   (:import goog.History)
   (:require
+   [client.components.common :as comp]
    [secretary.core :as secretary]
    [goog.events :as events]
    [goog.history.EventType :as EventType]
@@ -13,18 +14,6 @@
 
 (defn stop []
   (println "stop called"))
-
-(defn header [title]
-  [:header {:class "mainHeader"}
-   [:h2 title]])
-
-
-(defn nav-footer [footerpages]
-  [:footer
-   (for [p footerpages]
-      ^{:key p}
-      [:li
-       [:a {:href (str "#/" p)} p]])])
 
 (defn hook-browser-navigation! []
   (doto (History.)
@@ -42,23 +31,23 @@
 
 (defn home []
   [:div {:class "mainContent"}
-   [header "home page"]
-   [nav-footer pages]])
+   [comp/header "home page"]
+   [comp/nav-footer pages]])
 
 (defn interests []
   [:div {:class "mainContent"}
-   [header "interests"]
-   [nav-footer pages]])
+   [comp/header "interests"]
+   [comp/nav-footer pages]])
 
 (defn projects []
   [:div {:class "mainContent"}
-   [header "projects"]
-   [nav-footer pages]])
+   [comp/header "projects"]
+   [comp/nav-footer pages]])
 
 (defn blog []
   [:div {:class "mainContent"}
-   [header "blog"]
-   [nav-footer pages]])
+   [comp/header "blog"]
+   [comp/nav-footer pages]])
 
 ;; ROUTES
 
