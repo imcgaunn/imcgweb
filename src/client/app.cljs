@@ -7,7 +7,6 @@
    [goog.history.EventType :as EventType]
    [reagent.core :as r]))
 
-(def active-page (atom [:p "welcome to my website"]))
 (def app-state (r/atom {}))
 (defn start []
   (println "start called"))
@@ -19,17 +18,13 @@
   [:header {:class "mainHeader"}
    [:h2 title]])
 
-(def pages ["home"
-            "interests"
-            "projects"
-            "blog"])
 
 (defn nav-footer [footerpages]
   [:footer
    (for [p footerpages]
       ^{:key p}
       [:li
-       [:a {:href (str "/" p ".html")} p]])])
+       [:a {:href (str "#/" p)} p]])])
 
 (defn hook-browser-navigation! []
   (doto (History.)
@@ -39,21 +34,46 @@
        (secretary/dispatch! (.-token event))))
     (.setEnabled true)))
 
+;; PAGES
+(def pages ["home"
+            "interests"
+            "projects"
+            "blog"])
+
 (defn home []
   [:div {:class "mainContent"}
    [header "home page"]
    [nav-footer pages]])
 
 (defn interests []
-  [:div [header "interests"]
-        [nav-footer pages]])
+  [:div {:class "mainContent"}
+   [header "interests"]
+   [nav-footer pages]])
+
+(defn projects []
+  [:div {:class "mainContent"}
+   [header "projects"]
+   [nav-footer pages]])
+
+(defn blog []
+  [:div {:class "mainContent"}
+   [header "blog"]
+   [nav-footer pages]])
+
+;; ROUTES
 
 (defn app-routes []
   (secretary/set-config! :prefix "#")
   (defroute "/" []
     (swap! app-state assoc :page :home))
+  (defroute "/home" []
+    (swap! app-state assoc :page :home))
+  (defroute "/projects" []
+    (swap! app-state assoc :page :projects))        
   (defroute "/interests" []
     (swap! app-state assoc :page :interests))
+  (defroute "/blog" []
+    (swap! app-state assoc :page :blog))
   (hook-browser-navigation!))
 
 (defmulti curr-page #(@app-state :page))
@@ -61,6 +81,12 @@
   [home])
 (defmethod curr-page :interests []
   [interests])
+(defmethod curr-page :projects []
+  [projects])
+(defmethod curr-page :blog []
+  [blog])
+
+;; MAIN
 
 (app-routes)
 (r/render [curr-page]
