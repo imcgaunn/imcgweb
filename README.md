@@ -1,31 +1,21 @@
+# Building / Running Frontend
+To launch a development server running on localhost:8080
+running a less-optimized version of the frontend code,
+run:
 
-### Develop
+`shadow-cljs watch client`
 
-Watch compile with with hot reloading:
+shadow-cljs will kindly reload changes to the frontend code live.
 
-```bash
-yarn
-yarn shadow-cljs watch app
-```
+# Building Backend
+The backend workflow is still in progress because there
+isn't much use for a backend yet. To start the build
+for what is there, which is really just a placeholder,
+run:
 
-Start program:
+`shadow-cljs watch server`
 
-```bash
-node target/main.js
-```
+# Running Backend
+To run the (currently skeletal) backend, run:
 
-### REPL
-
-Start a REPL connected to current running program, `app` for the `:build-id`:
-
-```bash
-yarn shadow-cljs cljs-repl app
-```
-
-### Build
-
-```bash
-shadow-cljs release app
-```
-
-Compiles to `target/main.js`.
+`node target/main.js`
