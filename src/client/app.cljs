@@ -3,6 +3,7 @@
   (:import goog.History)
   (:require
    [client.components.common :as comp]
+   [client.components.home :as homecomps]
    [secretary.core :as secretary]
    [goog.events :as events]
    [goog.history.EventType :as EventType]
@@ -23,7 +24,8 @@
 (defn home []
   [:div
    [comp/header "home"]
-   [:div {:class "mainContent"}]
+   [:div {:class "mainContent"}
+    [homecomps/main]]
    [comp/nav-footer pages]])
 
 (defn interests []
