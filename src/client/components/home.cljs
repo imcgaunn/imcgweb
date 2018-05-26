@@ -22,4 +22,3 @@
    [interests-list]
    [:p "you can also visit any of the links below to look at my software projects, my blog or some more
     of my personal interests."]])
-
