@@ -80,14 +80,13 @@
   [interests])
 (defmethod curr-page :projects []
   (go
-   (let [proj-data (<! (projcomps/fetch-github-projects "imcgaunn"))]
-     (println proj-data)
-     [projects proj-data])))
+    (let [proj-data (<! (projcomps/fetch-github-projects "imcgaunn"))]
+      (doall
+       (map #(println (:name %)) proj-data)))))
 (defmethod curr-page :blog []
   [blog])
-
 ;; MAIN
 
 (app-routes)
 (r/render [curr-page]
-  (js/document.getElementById "app"))
+          (js/document.getElementById "app"))
