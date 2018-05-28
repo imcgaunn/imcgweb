@@ -7,8 +7,10 @@ body {
 
 .mainContent {
     height: 70%;
-    margin-left: 2rem;
-    margin-right: 2rem;
+    margin-left: 4rem;
+    margin-right: 4rem;
+    padding-left: 4rem;
+    padding-right: 4rem;
     background: rgba(151, 173, 187, 0.685);
     border-radius: 0.8rem;
 }
@@ -22,14 +24,12 @@ header {
 }
 
 #navigation {
-    position: absolute;
+    margin-top: 4rem;
     text-align: center;
-    height: 1.5rem;
     width: 100%;
-    bottom: 1.2rem;
 }
 
-#navigation li { 
+#navigation li {
     display: inline-block;
     padding-left: 0.2rem;
     padding-right: 0.2rem;

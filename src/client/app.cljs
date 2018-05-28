@@ -1,13 +1,16 @@
 (ns client.app
-  (:require-macros [secretary.core :refer [defroute]])
+  (:require-macros [secretary.core :refer [defroute]]
+                   [cljs.core.async.macros :refer [go]])
   (:import goog.History)
   (:require
    [client.components.common :as comp]
    [client.components.home :as homecomps]
+   [client.components.projects :as projcomps]
    [secretary.core :as secretary]
    [goog.events :as events]
    [goog.history.EventType :as EventType]
-   [reagent.core :as r]))
+   [reagent.core :as r]
+   [cljs.core.async :refer [<!]]))
 
 (def app-state (r/atom {}))
 (defn start []
@@ -76,7 +79,10 @@
 (defmethod curr-page :interests []
   [interests])
 (defmethod curr-page :projects []
-  [projects])
+  (go
+   (let [proj-data (<! (projcomps/fetch-github-projects "imcgaunn"))]
+     (println proj-data)
+     [projects proj-data])))
 (defmethod curr-page :blog []
   [blog])
 
