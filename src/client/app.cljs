@@ -12,7 +12,7 @@
    [reagent.core :as r]
    [cljs.core.async :refer [<!]]))
 
-(def app-state (r/atom {}))
+(def app-state (r/atom {:projects ["loading."]}))
 (defn start []
   (println "start called"))
 (defn stop []
@@ -79,10 +79,19 @@
 (defmethod curr-page :interests []
   [interests])
 (defmethod curr-page :projects []
+  ;; load default and dispatch action to get real content.
+  ;; experimenting with this pattern, which seems hugely
+  ;; useful!
   (go
-    (let [proj-data (<! (projcomps/fetch-github-projects "imcgaunn"))]
-      (doall
-       (map #(println (:name %)) proj-data)))))
+    (let [proj-data
+          (<! (projcomps/fetch-github-projects "imcgaunn"))]
+      (swap! app-state assoc :projects
+             (for [proj proj-data]
+               (:name proj)))))
+  [:div
+   (for [p (:projects @app-state)]
+     ^{:key p} [:p p])])
+
 (defmethod curr-page :blog []
   [blog])
 ;; MAIN
