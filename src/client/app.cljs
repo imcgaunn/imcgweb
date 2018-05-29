@@ -42,19 +42,7 @@
   [:div
    [comp/header "projects"]
    [:div {:class "mainContent"}
-    [:ul
-     (let [sorted-projects
-           (take 5
-                 (reverse
-                  (sort-by #(dateutil/parse-ts (:last-updated %)) plist)))]
-       (for [p sorted-projects]
-         ^{:key (:url p)}
-         [:li
-          [:div
-           [:p {:class "projectName"} (:name p)]
-           [:p {:class "projectDescription"} (:description p)]
-           [:p {:class "projectLastUpdated"} (:last-updated p)]
-           [:a {:href (:url p)} (:url p)]]]))]]
+    [projcomps/projects-showcase plist]]
    [comp/nav-footer pages]])
 
 (defn blog []
