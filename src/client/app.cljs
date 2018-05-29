@@ -3,6 +3,7 @@
                    [cljs.core.async.macros :refer [go]])
   (:import goog.History)
   (:require
+   [client.dateutil :as dateutil]
    [client.components.common :as comp]
    [client.components.home :as homecomps]
    [client.components.projects :as projcomps]
@@ -12,7 +13,7 @@
    [reagent.core :as r]
    [cljs.core.async :refer [<!]]))
 
-(def app-state (r/atom {:projects ["loading."]}))
+(def app-state (r/atom {:projects ["loading... ;)"]}))
 (defn start []
   (println "start called"))
 (defn stop []
@@ -37,10 +38,23 @@
    [:div {:class "mainContent"}]
    [comp/nav-footer pages]])
 
-(defn projects []
+(defn projects [plist]
   [:div
    [comp/header "projects"]
-   [:div {:class "mainContent"}]
+   [:div {:class "mainContent"}
+    [:ul
+     (let [sorted-projects
+           (take 5
+                 (reverse
+                  (sort-by #(dateutil/parse-ts (:last-updated %)) plist)))]
+       (for [p sorted-projects]
+         ^{:key (:url p)}
+         [:li
+          [:div
+           [:p {:class "projectName"} (:name p)]
+           [:p {:class "projectDescription"} (:description p)]
+           [:p {:class "projectLastUpdated"} (:last-updated p)]
+           [:a {:href (:url p)} (:url p)]]]))]]
    [comp/nav-footer pages]])
 
 (defn blog []
@@ -83,12 +97,8 @@
   (go
     (let [proj-data
           (<! (projcomps/fetch-github-projects "imcgaunn"))]
-      (swap! app-state assoc :projects
-             (for [proj proj-data]
-               (:name proj)))))
-  [:div
-   (for [p (:projects @app-state)]
-     ^{:key p} [:p p])])
+      (swap! app-state assoc :projects proj-data)))
+  [projects (:projects @app-state)])
 
 (defmethod curr-page :blog []
   [blog])

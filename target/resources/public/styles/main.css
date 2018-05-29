@@ -6,11 +6,10 @@ body {
 }
 
 .mainContent {
-    height: 70%;
+    overflow: 'scroll';
     margin-left: 4rem;
     margin-right: 4rem;
-    padding-left: 4rem;
-    padding-right: 4rem;
+    padding: 2rem 4rem 2rem 4rem;
     background: rgba(151, 173, 187, 0.685);
     border-radius: 0.8rem;
 }
@@ -24,7 +23,8 @@ header {
 }
 
 #navigation {
-    margin-top: 4rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
     text-align: center;
     width: 100%;
 }
