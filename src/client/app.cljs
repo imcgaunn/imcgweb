@@ -79,9 +79,7 @@
 (defmethod curr-page :interests []
   [interests])
 (defmethod curr-page :projects []
-  ;; load default and dispatch action to get real content.
-  ;; experimenting with this pattern, which seems hugely
-  ;; useful!
+  ;; load default page and dispatch action to get real content.
   (go
     (let [proj-data
           (<! (projcomps/fetch-github-projects "imcgaunn"))]

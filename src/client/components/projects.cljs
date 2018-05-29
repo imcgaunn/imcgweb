@@ -7,11 +7,12 @@
 
 (defn fetch-github-projects [user]
   (go
-   (let [resp (<! (http/get (str github-api-url "/users/" user "/repos")
-                            {:with-credentials? false}))]
-     (map (fn [repo]
-           {:url (:html_url repo)
-            :description (:description repo)
-            :name (:name repo)
-            :last-updated (:pushed_at repo)})
-          (:body resp)))))
+    (let [resp (<! (http/get
+                    (str github-api-url "/users/" user "/repos")
+                    {:with-credentials? false}))]
+      (map (fn [repo]
+             {:url (:html_url repo)
+              :description (:description repo)
+              :name (:name repo)
+              :last-updated (:pushed_at repo)})
+           (:body resp)))))

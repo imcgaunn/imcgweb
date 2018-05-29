@@ -2,7 +2,7 @@
 
 (defn my-philosophy []
   [:div {:style {:text-align "center"
-                 :font-family ""}}             
+                 :font-family ""}}
    [:p "there is no simpler or stronger expression of my personal philosophy than what the vanilla bard once whispered:"]
    [:blockquote "\"anything less than your best is a felony\" - vanilla ice"]])
 
