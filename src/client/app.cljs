@@ -1,17 +1,24 @@
 (ns client.app
-  (:require-macros [secretary.core :refer [defroute]])
+  (:require-macros [secretary.core :refer [defroute]]
+                   [cljs.core.async.macros :refer [go]])
   (:import goog.History)
   (:require
+   [client.dateutil :as dateutil]
    [client.components.common :as comp]
    [client.components.home :as homecomps]
+   [client.components.interests :as interestcomps]
+   [client.components.projects :as projcomps]
    [secretary.core :as secretary]
    [goog.events :as events]
    [goog.history.EventType :as EventType]
-   [reagent.core :as r]))
+   [reagent.core :as r]
+   [cljs.core.async :refer [<!]]))
 
-(def app-state (r/atom {}))
+(def app-state (r/atom {:projects ["loading... ;)"]}))
+
 (defn start []
   (println "start called"))
+
 (defn stop []
   (println "stop called"))
 
@@ -31,13 +38,21 @@
 (defn interests []
   [:div
    [comp/header "interests"]
-   [:div {:class "mainContent"}]
+   [:div {:class "mainContent"}
+    [interestcomps/professional-yoyo]]
    [comp/nav-footer pages]])
 
-(defn projects []
+(defn update-state-with-current-projects! []
+  (go
+    (let [proj-data
+          (<! (projcomps/fetch-github-projects "imcgaunn"))]
+      (swap! app-state assoc :projects proj-data))))
+
+(defn projects [plist]
   [:div
    [comp/header "projects"]
-   [:div {:class "mainContent"}]
+   [:div {:class "mainContent"}
+    [projcomps/projects-showcase plist]]
    [comp/nav-footer pages]])
 
 (defn blog []
@@ -76,12 +91,14 @@
 (defmethod curr-page :interests []
   [interests])
 (defmethod curr-page :projects []
-  [projects])
+  ;; load default page and dispatch action to get real content.
+  (update-state-with-current-projects!)
+  [projects (:projects @app-state)])
+
 (defmethod curr-page :blog []
   [blog])
-
 ;; MAIN
 
 (app-routes)
 (r/render [curr-page]
-  (js/document.getElementById "app"))
+          (js/document.getElementById "app"))
