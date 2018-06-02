@@ -8,11 +8,20 @@
    [client.components.home :as homecomps]
    [client.components.interests :as interestcomps]
    [client.components.projects :as projcomps]
+   [client.components.blog :as blogcomps]
    [secretary.core :as secretary]
    [goog.events :as events]
    [goog.history.EventType :as EventType]
    [reagent.core :as r]
    [cljs.core.async :refer [<!]]))
+
+;; APP STATE
+;; this comment will be updated as the program
+;; grows.
+;; {:projects ["loading...;"]
+;;  :blog-posts [{:title "", :date "", :content ""}]
+;;  :current-post {:title, :date, :content}))
+;;  :page :<pagename>}
 
 (def app-state (r/atom {:projects ["loading... ;)"]}))
 
@@ -55,11 +64,20 @@
     [projcomps/projects-showcase plist]]
    [comp/nav-footer pages]])
 
-(defn blog []
+(defn blog-index [posts]
   [:div
    [comp/header "blog"]
-   [:div {:class "mainContent"}]
+   [:div {:class "mainContent"}
+    [blogcomps/blog-index-page posts]]
    [comp/nav-footer pages]])
+
+(defn blog-post [post]
+  [:div
+   [comp/header (:title post)]
+   [:div {:class "mainContent"}
+    [blogcomps/blog-post post]]
+   [comp/nav-footer pages]])
+
 
 ;; ROUTES
 
@@ -82,7 +100,14 @@
   (defroute "/interests" []
     (swap! app-state assoc :page :interests))
   (defroute "/blog" []
-    (swap! app-state assoc :page :blog))
+    (swap! app-state assoc :page :blog-index))
+  (defroute "/blog/post/:id" {:as params}
+    ;; TODO logic to update app-state to point to the blog post
+    ;; referenced by 'id'.
+    ;; requires writing a function to find a post by id in
+    ;; the list of blog posts.
+    (println
+     (str "attempted to fetch blog post:" (:id params))))
   (hook-browser-navigation!))
 
 (defmulti curr-page #(@app-state :page))
@@ -94,9 +119,10 @@
   ;; load default page and dispatch action to get real content.
   (update-state-with-current-projects!)
   [projects (:projects @app-state)])
-
-(defmethod curr-page :blog []
-  [blog])
+(defmethod curr-page :blog-index []
+  [blog-index (:blog-posts @app-state)])
+(defmethod curr-page :blog-post []
+  [blog-post (:current-post @app-state)])
 ;; MAIN
 
 (app-routes)
