@@ -1,0 +1,2 @@
+(ns client.app)
+(blogcomps/add-post! app-state (blogcomps/post-from-components "title1" "4/18/2018" "great post content"))

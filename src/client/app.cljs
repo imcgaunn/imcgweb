@@ -18,7 +18,7 @@
 ;; APP STATE
 ;; this comment will be updated as the program
 ;; grows.
-;; {:projects ["loading...;"]
+;; {:projects ["loading...;"] (default placeholder)
 ;;  :blog-posts [{:title "", :date "", :content ""}]
 ;;  :current-post {:title, :date, :content}))
 ;;  :page :<pagename>}
@@ -51,11 +51,16 @@
     [interestcomps/professional-yoyo]]
    [comp/nav-footer pages]])
 
-(defn update-state-with-current-projects! []
+(defn update-with-current-projects! []
   (go
     (let [proj-data
           (<! (projcomps/fetch-github-projects "imcgaunn"))]
       (swap! app-state assoc :projects proj-data))))
+
+(defn set-page-view! [page]
+  (swap! app-state
+         assoc :page
+         page))
 
 (defn projects [plist]
   [:div
@@ -91,24 +96,19 @@
 (defn app-routes []
   (secretary/set-config! :prefix "#")
   (defroute "/" []
-    (swap! app-state assoc :page :home))
+    (set-page-view! :home))
   (defroute "/home" []
-    (swap! app-state assoc :page :home))
+    (set-page-view! :home))
   (defroute "/projects" []
-    (swap! app-state assoc :page :projects))
+    (set-page-view! :projects))
   (defroute "/interests" []
-    (swap! app-state assoc :page :interests))
+    (set-page-view! :interests))
   (defroute "/blog" []
-    (swap! app-state assoc :page :blog-index))
+    (set-page-view! :blog-index))
   (defroute "/blog/post/:title" {:as params}
-    (let [title (:title params)
-          posts (:blog-posts @app-state)]
-     (swap! app-state
-      assoc :current-post
-      (blogcomps/find-post title posts)) ;; point app state to desired post
-     (swap! app-state
-      assoc :page
-      :blog-post))) ;; switch to blog post view
+    (let [title (:title params)]
+     (blogcomps/set-current-post! app-state title)
+     (set-page-view! :blog-post)))
   (hook-browser-navigation!))
 
 (defmulti curr-page #(@app-state :page))
@@ -118,7 +118,7 @@
   [interests])
 (defmethod curr-page :projects []
   ;; load default page and dispatch action to get real content.
-  (update-state-with-current-projects!)
+  (update-with-current-projects!)
   [projects (:projects @app-state)])
 (defmethod curr-page :blog-index []
   [blog-index (:blog-posts @app-state)])
