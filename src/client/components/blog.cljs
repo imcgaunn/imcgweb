@@ -10,6 +10,12 @@
 (defn find-post [title posts]
   (first (filter #(= title (:title %)) posts)))
 
+(defn set-current-post! [app title]
+  (let [posts (:blog-posts @app)]
+   (swap! app
+          assoc :current-post
+          (find-post title posts))))
+
 (defn post-from-components [title date content]
  {:title title
   :date date
@@ -23,7 +29,7 @@
   [:p (:content post)]
   [:p "posted at..."]
   [:p (:date post)]
-  [:a {:href "#/blog"} "back to index"]])
+  [:a {:href "#/blog"} "<back to index>"]])
 
 (defn blog-index-page [blog-posts]
  [:div {:class "blogIndex"}
@@ -34,5 +40,6 @@
      [:div
       [:a {:class "blogIndexEntryTitle"
            :href (str "#/blog/post/"
-                  (title->link (:title p)))} (:title p)]
-      [:p {:class "blogIndexEntryDate"} (:date p)]]])]])
+                      (title->link (:title p)))} (:title p)]
+      [:p {:class "blogIndexEntryDate"}
+       (:date p)]]])]])
