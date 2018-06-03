@@ -4,8 +4,11 @@
   (let [cur-posts (:blog-posts @app)]
    (swap! 
     app assoc 
-    :blog-posts 
+    :blog-posts
     (conj cur-posts post))))
+
+(defn find-post [title posts]
+  (first (filter #(= title (:title %)) posts)))
 
 (defn post-from-components [title date content]
  {:title title
@@ -15,9 +18,12 @@
 (defn title->link [title]
   title) ;; TODO for sure this will fail at times.
 
-(defn blog-post [blogtext]
+(defn blog-post [post]
  [:div {:class "blogPost"}
-  [:p blogtext]])
+  [:p (:content post)]
+  [:p "posted at..."]
+  [:p (:date post)]
+  [:a {:href "#/blog"} "back to index"]])
 
 (defn blog-index-page [blog-posts]
  [:div {:class "blogIndex"}

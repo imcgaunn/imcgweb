@@ -78,7 +78,6 @@
     [blogcomps/blog-post post]]
    [comp/nav-footer pages]])
 
-
 ;; ROUTES
 
 (defn hook-browser-navigation! []
@@ -101,13 +100,15 @@
     (swap! app-state assoc :page :interests))
   (defroute "/blog" []
     (swap! app-state assoc :page :blog-index))
-  (defroute "/blog/post/:id" {:as params}
-    ;; TODO logic to update app-state to point to the blog post
-    ;; referenced by 'id'.
-    ;; requires writing a function to find a post by id in
-    ;; the list of blog posts.
-    (println
-     (str "attempted to fetch blog post:" (:id params))))
+  (defroute "/blog/post/:title" {:as params}
+    (let [title (:title params)
+          posts (:blog-posts @app-state)]
+     (swap! app-state
+      assoc :current-post
+      (blogcomps/find-post title posts)) ;; point app state to desired post
+     (swap! app-state
+      assoc :page
+      :blog-post))) ;; switch to blog post view
   (hook-browser-navigation!))
 
 (defmulti curr-page #(@app-state :page))
@@ -123,6 +124,7 @@
   [blog-index (:blog-posts @app-state)])
 (defmethod curr-page :blog-post []
   [blog-post (:current-post @app-state)])
+
 ;; MAIN
 
 (app-routes)
