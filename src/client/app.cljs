@@ -15,23 +15,19 @@
    [reagent.core :as r]
    [cljs.core.async :refer [<!]]))
 
+(enable-console-print!)
+(println "it would be nice if I saw this!")
+
 ;; APP STATE
 ;; this comment will be updated as the program
 ;; grows.
-;; {:projects ["loading...;"] (default placeholder)
+;; {:projects ["loading...;"]
 ;;  :blog-posts [{:title "", :date "", :content ""}]
 ;;  :current-post {:title, :date, :content}))
 ;;  :page :<pagename>}
 
-(def app-state (r/atom {:projects ["loading... ;)"]}))
+(defonce app-state (r/atom {:projects ["loading... ;)"]}))
 
-(defn start []
-  (println "start called"))
-
-(defn stop []
-  (println "stop called"))
-
-;; PAGES
 (def pages ["home"
             "interests"
             "projects"
@@ -51,10 +47,12 @@
     [interestcomps/professional-yoyo]]
    [comp/nav-footer pages]])
 
+(def GH-USERNAME "imcgaunn")
+
 (defn update-with-current-projects! []
   (go
     (let [proj-data
-          (<! (projcomps/fetch-github-projects "imcgaunn"))]
+          (<! (projcomps/fetch-github-projects GH-USERNAME))]
       (swap! app-state assoc :projects proj-data))))
 
 (defn set-page-view! [page]
@@ -120,6 +118,7 @@
   ;; load default page and dispatch action to get real content.
   (update-with-current-projects!)
   [projects (:projects @app-state)])
+
 (defmethod curr-page :blog-index []
   [blog-index (:blog-posts @app-state)])
 (defmethod curr-page :blog-post []

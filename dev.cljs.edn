@@ -1,0 +1,9 @@
+^{:css-dirs ["resources/public/css"]
+  :ansi-color-output false}
+{:main client.app
+ ;; NOTE(imcg) had to set these manually because on windows
+ ;; this causes windows-style paths to end up in the compiled
+ ;; javascript which doesn't jive well with browsers (at least not firefox)
+ :output-to "target/public/cljs-out/dev-main.js",
+ :output-dir "target/public/cljs-out/dev",
+ :asset-path "cljs-out/dev"}
