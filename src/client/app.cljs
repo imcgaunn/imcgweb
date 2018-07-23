@@ -16,7 +16,6 @@
    [cljs.core.async :refer [<!]]))
 
 (enable-console-print!)
-(println "it would be nice if I saw this!")
 
 ;; APP STATE
 ;; this comment will be updated as the program
@@ -27,6 +26,7 @@
 ;;  :page :<pagename>}
 
 (defonce app-state (r/atom {:projects ["loading... ;)"]}))
+(defonce page-switched (r/atom false))
 
 (def pages ["home"
             "interests"
@@ -98,6 +98,7 @@
   (defroute "/home" []
     (set-page-view! :home))
   (defroute "/projects" []
+    (update-with-current-projects!)
     (set-page-view! :projects))
   (defroute "/interests" []
     (set-page-view! :interests))
@@ -115,10 +116,7 @@
 (defmethod curr-page :interests []
   [interests])
 (defmethod curr-page :projects []
-  ;; load default page and dispatch action to get real content.
-  (update-with-current-projects!)
   [projects (:projects @app-state)])
-
 (defmethod curr-page :blog-index []
   [blog-index (:blog-posts @app-state)])
 (defmethod curr-page :blog-post []
