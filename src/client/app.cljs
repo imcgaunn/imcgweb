@@ -1,6 +1,5 @@
 (ns client.app
-  (:require-macros [secretary.core :refer [defroute]]
-                   [cljs.core.async.macros :refer [go]])
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:import goog.History)
   (:require
    [client.dateutil :as dateutil]
@@ -9,7 +8,7 @@
    [client.components.interests :as interestcomps]
    [client.components.projects :as projcomps]
    [client.components.blog :as blogcomps]
-   [secretary.core :as secretary]
+   [secretary.core :as secretary :refer-macros [defroute]]
    [goog.events :as events]
    [goog.history.EventType :as EventType]
    [reagent.core :as r]
@@ -20,13 +19,14 @@
 ;; APP STATE
 ;; this comment will be updated as the program
 ;; grows.
-;; {:projects ["loading...;"]
-;;  :blog-posts [{:title "", :date "", :content ""}]
-;;  :current-post {:title, :date, :content}))
-;;  :page :<pagename>}
+; {:projects ["loading...;"]
+;  :blog-posts [{:title "", :date "", :content ""}]
+;  :current-post {:title, :date, :content}
+;  :post-index {<id> {:title "" :post-s3-loc "" ...}}
+;  :page :<pagename>}
 
-(defonce app-state (r/atom {:projects ["loading... ;)"]}))
-(defonce page-switched (r/atom false))
+(defonce app-state (r/atom {:projects ["loading... ;)"]
+                            :current-post {}}))
 
 (def pages ["home"
             "interests"
@@ -67,11 +67,11 @@
     [projcomps/projects-showcase plist]]
    [comp/nav-footer pages]])
 
-(defn blog-index [posts]
+(defn blog-index [index]
   [:div
    [comp/header "blog"]
    [:div {:class "mainContent"}
-    [blogcomps/blog-index-page posts]]
+    [blogcomps/blog-index-page index]]
    [comp/nav-footer pages]])
 
 (defn blog-post [post]
@@ -103,11 +103,14 @@
   (defroute "/interests" []
     (set-page-view! :interests))
   (defroute "/blog" []
+    (blogcomps/fetch-post-idx! app-state)
     (set-page-view! :blog-index))
-  (defroute "/blog/post/:title" {:as params}
-    (let [title (:title params)]
-     (blogcomps/set-current-post! app-state title)
-     (set-page-view! :blog-post)))
+  (defroute "/blog/post/:id" {id :id}
+    (go
+      (let [respchan (blogcomps/fetch-blog-post! app-state (js/parseInt id 10))
+            post (<! respchan)]
+        (blogcomps/set-current-post! app-state post)
+        (set-page-view! :blog-post))))
   (hook-browser-navigation!))
 
 (defmulti curr-page #(@app-state :page))
@@ -118,7 +121,7 @@
 (defmethod curr-page :projects []
   [projects (:projects @app-state)])
 (defmethod curr-page :blog-index []
-  [blog-index (:blog-posts @app-state)])
+  [blog-index (:post-index @app-state)])
 (defmethod curr-page :blog-post []
   [blog-post (:current-post @app-state)])
 

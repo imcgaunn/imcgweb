@@ -1,7 +1,6 @@
 (ns client.components.projects
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs-http.client :as http]
-            [cljs.core.async :refer [<!]]
             [client.dateutil :as dateutil]))
 
 (def github-api-url "https://api.github.com")
