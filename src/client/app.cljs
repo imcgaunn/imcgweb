@@ -2,17 +2,16 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:import goog.History)
   (:require
-   [client.dateutil :as dateutil]
-   [client.components.common :as comp]
-   [client.components.home :as homecomps]
-   [client.components.interests :as interestcomps]
-   [client.components.projects :as projcomps]
-   [client.components.blog :as blogcomps]
-   [secretary.core :as secretary :refer-macros [defroute]]
-   [goog.events :as events]
-   [goog.history.EventType :as EventType]
-   [reagent.core :as r]
-   [cljs.core.async :refer [<!]]))
+    [client.components.common :as comp]
+    [client.components.home :as homecomps]
+    [client.components.interests :as interestcomps]
+    [client.components.projects :as projcomps]
+    [client.components.blog :as blogcomps]
+    [secretary.core :as secretary]
+    [goog.events :as events]
+    [goog.history.EventType :as EventType]
+    [reagent.core :as r]
+    [cljs.core.async :refer [<!]]))
 
 (enable-console-print!)
 
@@ -31,14 +30,14 @@
 (def pages ["home"
             "interests"
             "projects"
-            "blog"])
+            "blog"]
 
-(defn home []
-  [:div
-   [comp/header "home"]
-   [:div {:class "mainContent"}
-    [homecomps/main]]
-   [comp/nav-footer pages]])
+  (defn home []
+    [:div
+     [comp/header "home"]
+     [:div {:class "mainContent"}
+      [homecomps/main]]
+     [comp/nav-footer pages]]))
 
 (defn interests []
   [:div
@@ -93,19 +92,19 @@
 
 (defn app-routes []
   (secretary/set-config! :prefix "#")
-  (defroute "/" []
+  (secretary/defroute "/" []
     (set-page-view! :home))
-  (defroute "/home" []
+  (secretary/defroute "/home" []
     (set-page-view! :home))
-  (defroute "/projects" []
+  (secretary/defroute "/projects" []
     (update-with-current-projects!)
     (set-page-view! :projects))
-  (defroute "/interests" []
+  (secretary/defroute "/interests" []
     (set-page-view! :interests))
-  (defroute "/blog" []
+  (secretary/defroute "/blog" []
     (blogcomps/fetch-post-idx! app-state)
     (set-page-view! :blog-index))
-  (defroute "/blog/post/:id" {id :id}
+  (secretary/defroute "/blog/post/:id" {id :id}
     (go
       (let [respchan (blogcomps/fetch-blog-post! app-state (js/parseInt id 10))
             post (<! respchan)]

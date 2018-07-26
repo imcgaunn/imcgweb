@@ -6,10 +6,6 @@
 (def backend-uri "https://6fjd9so41d.execute-api.us-east-1.amazonaws.com/dev")
 
 (defn transform-index
-  "builds a map that looks kind of like this:
-  {1 {:title 't' :created-time #<time> ... }
-   2 {:title 't' :created-tme #<time> ... }
-  "
   [raw-idx]
   (let [almost-entries (map
                          (fn [e]
@@ -78,7 +74,6 @@
         [:li {:class "blogIndexEntry"}
          [:div
           [:a {:class "blogIndexEntryTitle"
-               ;; NOTE: the title will not always be linkable
                :href  (str "#/blog/post/" post-id)} (:title entry)]
           [:p {:class "blogIndexEntryDate"}
            (.toDateString
