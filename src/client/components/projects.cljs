@@ -17,6 +17,12 @@
               :last-updated (:pushed_at repo)})
            (:body resp)))))
 
+(defn update-saved-projects! [app username]
+  (go
+    (let [proj-data
+          (<! (fetch-github-projects username))]
+      (swap! app assoc :projects proj-data))))
+
 (defn projects-showcase [plist]
   [:ul
    (let [sorted-projects

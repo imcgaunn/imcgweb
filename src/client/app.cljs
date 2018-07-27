@@ -30,14 +30,14 @@
 (def pages ["home"
             "interests"
             "projects"
-            "blog"]
+            "blog"])
 
-  (defn home []
-    [:div
-     [comp/header "home"]
-     [:div {:class "mainContent"}
-      [homecomps/main]]
-     [comp/nav-footer pages]]))
+(defn home []
+  [:div
+   [comp/header "home"]
+   [:div {:class "mainContent"}
+    [homecomps/main]]
+   [comp/nav-footer pages]])
 
 (defn interests []
   [:div
@@ -47,12 +47,6 @@
    [comp/nav-footer pages]])
 
 (def GH-USERNAME "imcgaunn")
-
-(defn update-with-current-projects! []
-  (go
-    (let [proj-data
-          (<! (projcomps/fetch-github-projects GH-USERNAME))]
-      (swap! app-state assoc :projects proj-data))))
 
 (defn set-page-view! [page]
   (swap! app-state
@@ -90,6 +84,13 @@
        (secretary/dispatch! (.-token event))))
     (.setEnabled true)))
 
+(defn fetch-post->set-page-view [id]
+  (go
+    (let [respchan (blogcomps/fetch-blog-post! app-state (js/parseInt id 10))
+          post (<! respchan)]
+      (blogcomps/set-current-post! app-state post)
+      (set-page-view! :blog-post))))
+
 (defn app-routes []
   (secretary/set-config! :prefix "#")
   (secretary/defroute "/" []
@@ -97,7 +98,7 @@
   (secretary/defroute "/home" []
     (set-page-view! :home))
   (secretary/defroute "/projects" []
-    (update-with-current-projects!)
+    (projcomps/update-saved-projects! app-state GH-USERNAME)
     (set-page-view! :projects))
   (secretary/defroute "/interests" []
     (set-page-view! :interests))
@@ -105,11 +106,7 @@
     (blogcomps/fetch-post-idx! app-state)
     (set-page-view! :blog-index))
   (secretary/defroute "/blog/post/:id" {id :id}
-    (go
-      (let [respchan (blogcomps/fetch-blog-post! app-state (js/parseInt id 10))
-            post (<! respchan)]
-        (blogcomps/set-current-post! app-state post)
-        (set-page-view! :blog-post))))
+    (fetch-post->set-page-view id))
   (hook-browser-navigation!))
 
 (defmulti curr-page #(@app-state :page))

@@ -5,15 +5,13 @@
 
 (def backend-uri "https://6fjd9so41d.execute-api.us-east-1.amazonaws.com/dev")
 
+(defn transform-index-entry [e]
+  {:id (:id e)
+   :vals e})
+
 (defn transform-index
   [raw-idx]
-  (let [almost-entries (map
-                         (fn [e]
-                           {:id (:id e)
-                            :vals {:title (:id e)  ; TODO: this should be title, but that's not in the backend index
-                                   :created-time (:created-time e)
-                                   :post-s3-loc (:post-s3-loc e)
-                                   :post-meta-s3-loc (:post-meta-s3-loc e)}}) raw-idx)]
+  (let [almost-entries (map transform-index-entry raw-idx)]
       (reduce
          (fn [acc m]
            (assoc acc (:id m) (:vals m)))
@@ -41,11 +39,11 @@
     (let [post-backend-uri (str backend-uri "/blog/?id=" post-id)
           post-content (<! (req/http-get post-backend-uri))
           idx (:post-index @app)
-          post-idx-entry (get idx (js/parseInt post-id 10))]  ;; get post metadata from our index
+          post-idx-entry (get idx (js/parseInt post-id 10))]
       (if post-idx-entry
         {:content (:body post-content)
          :date (:created-time post-idx-entry)
-         :title (:id post-idx-entry)
+         :title (:title post-idx-entry)
          :id post-id}
         (throw (str "no index entry for post: " post-id))))))
 
@@ -53,9 +51,6 @@
   (swap! app
          assoc :current-post
          post))
-
-(defn title->link [title]
-  title) ;; TODO for sure this will fail at times.
 
 (defn blog-post [post]
   [:div {:class "blogPost"}
@@ -77,4 +72,4 @@
                :href  (str "#/blog/post/" post-id)} (:title entry)]
           [:p {:class "blogIndexEntryDate"}
            (.toDateString
-             (:created-time entry))]]]))]])
+            (:created-time entry))]]]))]])

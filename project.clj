@@ -17,8 +17,11 @@
             "fig:min"   ["run" "-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]}
 
   :profiles {:dev {:dependencies [[com.bhauman/figwheel-main "0.1.4"]
-                                  [com.bhauman/rebel-readline-cljs "0.1.4"]]
-                   :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl] :port 4001 }
+                                  [com.bhauman/rebel-readline-cljs "0.1.4"]
+                                  [cider/piggieback "0.3.6"]]
+                   :plugins [[cider/cider-nrepl "0.17.0"]]
+                   :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]
+                                  :nrepl-port 4001}
                    :resource-paths ["resources" "target"]
                    ;; need to add the compliled assets to the :clean-targets
                    :clean-targets ^{:protect false} ["target/public"
